@@ -3,7 +3,7 @@
 # address this row by id `agentfuse`; the last write wins per row.
 #
 # `defaultAction: block` is the fail-closed default: a tool name covered by
-# neither `denyTools` nor `allowTools` is denied.
+# neither `denyTools` nor `askTools` nor `allowTools` is denied.
 
 - insert:
     - id: agentfuse
@@ -11,5 +11,6 @@
       config:
         defaultAction: block
         denyTools: []
+        askTools: []
         allowTools: []
         logDecisions: false
