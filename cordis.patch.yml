@@ -1,0 +1,15 @@
+# AgentFuse bundle patch: inserts the fail-closed pre-dispatch gate over an
+# existing profile root. Later bundle layers and the user's `cordis.patch.yml`
+# address this row by id `agentfuse`; the last write wins per row.
+#
+# `defaultAction: block` is the fail-closed default: a tool name covered by
+# neither `denyTools` nor `allowTools` is denied.
+
+- insert:
+    - id: agentfuse
+      name: '@deepseek-ai/dsh-agentfuse'
+      config:
+        defaultAction: block
+        denyTools: []
+        allowTools: []
+        logDecisions: true
