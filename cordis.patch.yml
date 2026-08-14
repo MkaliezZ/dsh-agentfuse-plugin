@@ -12,4 +12,4 @@
         defaultAction: block
         denyTools: []
         allowTools: []
-        logDecisions: true
+        logDecisions: false

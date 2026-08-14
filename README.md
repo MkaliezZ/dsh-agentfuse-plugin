@@ -35,7 +35,7 @@ same boundary the Python `dhms_agentfuse` documents.
     defaultAction: block      # 'allow' | 'block' — fall-through for unlisted names
     denyTools: []             # always wins
     allowTools: []            # non-empty = only these names may run
-    logDecisions: true        # append durable agentfuse/decision for BLOCKED calls
+    logDecisions: false       # durable evidence; needs in-repo catalog (see note below)
 ```
 
 Policy resolution order (fixed, deterministic):
@@ -67,7 +67,9 @@ resolve only inside the monorepo.
 > `KNOWN_SESSION_EVENT_TYPES` catalog. After the package lands in-repo, run
 > `pnpm run gen-persistence-catalog` so the event is recognized. Until then the
 > gate still blocks correctly; only the durable decision event is not
-> reconstructable on reload.
+> reconstructable on reload. For this reason `logDecisions` defaults to
+> `false` — leave it off for standalone installs and enable it only after the
+> package lands in-repo and the catalog is regenerated.
 
 ## API
 

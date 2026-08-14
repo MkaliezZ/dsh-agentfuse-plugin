@@ -41,8 +41,14 @@ export interface Config {
   defaultAction?: 'allow' | 'block'
   /**
    * Append a durable `agentfuse/decision` session event for every BLOCKED call
-   * (default `true`). Allowed calls are never durably logged — their execution
+   * (default `false`). Allowed calls are never durably logged — their execution
    * evidence is already the tool's own `tool/result`.
+   *
+   * Defaults to `false` because the event must be registered in the
+   * repo-generated `KNOWN_SESSION_EVENT_TYPES` catalog before persistence can
+   * reload it. An out-of-repo (standalone bundle) install that enables it
+   * without that registration makes sessions fail to load on resume; enable it
+   * only when the package runs inside the monorepo (catalog regenerated).
    */
   logDecisions?: boolean
 }
@@ -51,7 +57,7 @@ export const Config: z<Config> = z.object({
   denyTools: z.array(z.string()).default([]),
   allowTools: z.array(z.string()).default([]),
   defaultAction: z.union(['allow', 'block'] as const).default('block'),
-  logDecisions: z.boolean().default(true),
+  logDecisions: z.boolean().default(false),
 })
 
 /** Compile a validated {@link Config} into the rules the engine evaluates. */
@@ -107,7 +113,7 @@ function denyReason(decision: AgentFuseDecision): string {
  */
 export function apply(ctx: Context, config: Config): void {
   const rules = compileRules(config)
-  const logDecisions = config.logDecisions ?? true
+  const logDecisions = config.logDecisions ?? false
 
   ctx.on('tools/pre-execute', async (exec: ToolExecution, next): Promise<PreToolDecision> => {
     const request: ToolCallRequest = {
