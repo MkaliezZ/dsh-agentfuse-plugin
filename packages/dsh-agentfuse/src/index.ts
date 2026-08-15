@@ -2,13 +2,18 @@
  * AgentFuse: an experimental in-process pre-dispatch policy boundary for AI
  * agent tools, ported to DeepSeek Harness as a guard plugin.
  *
- * A `tools/pre-execute` listener evaluates every tool call against a
- * deterministic denylist/asklist/allowlist/default policy, fails closed on
- * block, defers asklisted tools to the DSH approval chain, and appends a
- * durable `agentfuse/decision` session event for blocked calls carrying the
- * canonical evidence (reason code, policy id, arguments hash — never raw
- * arguments). Ask deferrals carry no AgentFuse evidence: the approval layer
- * records the `approval/asked` + `approval/decided` audit pair instead.
+ * This package is a THIN ADAPTER over `@agentfuse/core`: it owns the DSH
+ * config schema, the `tools/pre-execute` gate, and the durable
+ * `agentfuse/decision` session event. The decision vocabulary, deterministic
+ * policy resolution, hashing, and evidence assembly all live in the core.
+ *
+ * The gate evaluates every tool call against a deterministic
+ * denylist/asklist/allowlist/default policy, fails closed on block, defers
+ * asklisted tools to the DSH approval chain, and appends a durable
+ * `agentfuse/decision` session event for blocked calls carrying the canonical
+ * evidence (reason code, policy id, arguments hash — never raw arguments).
+ * Ask deferrals carry no AgentFuse evidence: the approval layer records the
+ * `approval/asked` + `approval/decided` audit pair instead.
  *
  * AgentFuse is not a process sandbox, malware detector, intrinsic danger
  * classifier, or universal interceptor. It owns only the deterministic
@@ -22,36 +27,30 @@ import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import type { PreToolDecision, ToolExecution } from '@deepseek-ai/dsh-tools'
 
-import { buildDecision } from './evidence.ts'
-import { resolvePolicy, type PolicyRules, type PolicyResolution } from './policy.ts'
-import type { AgentFuseDecision, AgentFuseDecisionEventData, ToolCallRequest } from './types.ts'
+import {
+  buildDecision,
+  compileRules,
+  resolvePolicy,
+  type AgentFuseDecision,
+  type AgentFuseDecisionEventData,
+  type PolicyConfig,
+  type ToolCallRequest,
+} from '@agentfuse/core'
+
+// Re-export the complete core vocabulary so `@deepseek-ai/dsh-agentfuse`
+// stays the single import surface for DSH consumers.
+export * from '@agentfuse/core'
+export type { AgentFuseDecisionEventData } from './types.ts'
 
 /** Cordis plugin name used by loader diagnostics. */
 export const name = 'agentfuse'
 
 /**
- * Plugin config, validated by the same-named schemastery schema plus the
- * load-time checks in `apply` (misconfiguration fails loud). `denyTools`
- * always wins; `askTools` defers to the DSH approval chain; `allowTools`, when
- * non-empty, blocks every other tool name; `defaultAction` is the fall-through
- * for names covered by none of them.
+ * Plugin config: the core {@link PolicyConfig} plus the DSH-specific durable
+ * evidence flag. Validated by the same-named schemastery schema plus the
+ * load-time checks in `apply` (misconfiguration fails loud).
  */
-export interface Config {
-  /** Tool names blocked outright. Denylist always wins over everything. */
-  denyTools?: string[]
-  /**
-   * Tool names that defer to the DSH approval chain instead of a deterministic
-   * decision. Checked after `denyTools` and before the allowlist, so a deny
-   * always wins and an unlisted name can still be blocked. The approval layer
-   * (`@deepseek-ai/dsh-user-approval`) prompts the configured answerers and
-   * records the `approval/asked` + `approval/decided` audit pair; with no
-   * approval service or answerer composed, the ask fails closed to deny.
-   */
-  askTools?: string[]
-  /** When non-empty, only these tool names may run; everything else is blocked. */
-  allowTools?: string[]
-  /** Action for a name covered by no rule. Default `block` (fail-closed). */
-  defaultAction?: 'allow' | 'block'
+export interface Config extends PolicyConfig {
   /**
    * Append a durable `agentfuse/decision` session event for every BLOCKED call
    * (default `false`). Allowed calls are never durably logged — their execution
@@ -73,32 +72,6 @@ export const Config: z<Config> = z.object({
   defaultAction: z.union(['allow', 'block'] as const).default('block'),
   logDecisions: z.boolean().default(false),
 })
-
-/** Compile a validated {@link Config} into the rules the engine evaluates. */
-export function compileRules(config: Config): PolicyRules {
-  const allowTools = (config.allowTools ?? []).length > 0 ? new Set(config.allowTools) : undefined
-  return {
-    denyTools: new Set(config.denyTools ?? []),
-    askTools: new Set(config.askTools ?? []),
-    ...allowTools === undefined ? {} : { allowTools },
-    defaultAction: config.defaultAction ?? 'block',
-  }
-}
-
-/**
- * The pure, side-effect-free decision-only API: resolve the policy for one
- * request without dispatching anything. The TypeScript analogue of the Python
- * `RuntimeGuard.evaluate()`, extended with the DSH-native third outcome.
- *
- * @param request - the request to evaluate.
- * @param rules - compiled policy rules.
- * @returns the {@link PolicyResolution}: `allow`/`block` (final — build its
- *   evidence with {@link buildDecision}), or `ask` (deferred to the DSH
- *   approval chain; no AgentFuse evidence).
- */
-export function evaluate(request: ToolCallRequest, rules: PolicyRules): PolicyResolution {
-  return resolvePolicy(request, rules)
-}
 
 /** Project a decision into the durable, raw-argument-free event payload. */
 function toEventData(decision: AgentFuseDecision): AgentFuseDecisionEventData {

@@ -3,7 +3,7 @@
  * policy hashing, and the {@link EvidenceRecord} assembly that keeps decision
  * and execution as separate lifecycle facts.
  *
- * @module @deepseek-ai/dsh-agentfuse/evidence
+ * @module @agentfuse/core/evidence
  */
 
 import { createHash } from 'node:crypto'
@@ -28,9 +28,9 @@ const NON_EXECUTION_REASONS = new Set([
 
 /**
  * Deep key-sort of a JSON value so two argument objects that differ only in
- * property order canonicalize identically. Arguments reach the gate as the
- * pipeline's parsed JSON, so JSON's value domain is the whole input domain —
- * no bigint, cycle, or `undefined` handling is reachable here.
+ * property order canonicalize identically. Arguments reach the engine as parsed
+ * JSON, so JSON's value domain is the whole input domain — no bigint, cycle,
+ * or `undefined` handling is reachable here.
  */
 function sortJsonValue(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(sortJsonValue)
@@ -48,8 +48,8 @@ function sortJsonValue(value: unknown): unknown {
 /**
  * Canonical, order-independent hash of a call's arguments: deep key-sort, then
  * SHA-256. The fallback string mirrors the Python original — it can only be
- * reached if a hostile value traps serialization, never from the tool pipeline
- * (which guarantees lossless JSON).
+ * reached if a hostile value traps serialization, never from a framework
+ * pipeline that guarantees lossless JSON.
  * @param value - the parsed arguments value.
  * @returns `sha256:<hex>` of the canonical serialization.
  */
@@ -70,7 +70,7 @@ export function policyHash(policyId: string): string {
 /**
  * Assemble the full evidence record for one settled request. A blocked call
  * carries {@link NonExecutionEvidence}; an allowed call carries none (its
- * execution evidence is the tool's own `tool/result` event).
+ * execution evidence is the host framework's own execution record).
  *
  * @param request - the evaluated request.
  * @param resolved - the policy resolution for that request.
@@ -133,12 +133,11 @@ function blockNonExecution(toolCallId: string, reasonCode: string): NonExecution
 }
 
 /**
- * Build the canonical public decision for one request. This is the pure,
- * side-effect-free decision-only API — the TypeScript analogue of the Python
- * `RuntimeGuard.evaluate()`: it never dispatches a handler.
+ * Build the canonical public decision for one final (allow/block) resolution.
+ * Pure and side-effect-free: it never dispatches anything.
  *
  * @param request - the request to evaluate.
- * @param resolved - the resolved policy.
+ * @param resolved - the resolved policy (an `ask` resolution has no decision).
  * @returns the {@link AgentFuseDecision}.
  */
 export function buildDecision(request: ToolCallRequest, resolved: ResolvedPolicy): AgentFuseDecision {

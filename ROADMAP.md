@@ -30,7 +30,7 @@ production — not by filtering bad outputs, but by making every agent action
 Goal: the first real deployment by someone else. This is the ticket to
 everything after.
 
-- [ ] Extract the framework-agnostic core (`@agentfuse/core`) — policy,
+- [x] Extract the framework-agnostic core (`@agentfuse/core`) — policy,
   evidence, and hashing are already pure; turn the DSH package into a thin
   adapter.
 - [ ] LangGraph adapter demo — prove this is not a DSH-only toy.

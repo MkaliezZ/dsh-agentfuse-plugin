@@ -1,9 +1,10 @@
 /**
- * Unit + real-load-path coverage for @deepseek-ai/dsh-agentfuse. The pure
- * policy/hash/evidence tests are deterministic; the gate tests drive the real
- * `tools/pre-execute` waterfall through `ctx.tools.execute`; the ask tests
- * compose the real approval service with a scripted answerer to prove the
- * full allow-once/rejected loop.
+ * DSH-adapter coverage for @deepseek-ai/dsh-agentfuse. The gate tests drive
+ * the real `tools/pre-execute` waterfall through `ctx.tools.execute`; the ask
+ * tests compose the real approval service with a scripted answerer to prove
+ * the full allow-once/rejected loop. Pure policy/evidence behavior is covered
+ * by `@agentfuse/core`'s own suite — imported here only where the adapter
+ * touches it.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -15,9 +16,6 @@ import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
 import ToolRuntime, { defineContentToolFixture } from '@deepseek-ai/dsh-tools'
 import ApprovalService, { type ApprovalOutcome } from '@deepseek-ai/dsh-user-approval'
 import * as agentfuse from '@deepseek-ai/dsh-agentfuse'
-import { argumentsHash, buildDecision } from '@deepseek-ai/dsh-agentfuse/src/evidence'
-import { resolvePolicy } from '@deepseek-ai/dsh-agentfuse/src/policy'
-import { EVIDENCE_SCHEMA_VERSION, type ToolCallRequest } from '@deepseek-ai/dsh-agentfuse/src/types'
 
 const testToolSignal = new AbortController().signal
 
@@ -50,10 +48,6 @@ const dangerTool = defineContentToolFixture({
   async execute() { return [{ type: 'text' as const, text: 'danger-ran' }] },
 })
 
-function request(name: string, args: unknown = {}): ToolCallRequest {
-  return { toolCallId: CallId(name), toolName: name, arguments: args }
-}
-
 /**
  * A minimal Agent stand-in with an open turn (the approval service's
  * turn-enclosure precondition) and a recording append — the same fixture
@@ -72,76 +66,6 @@ function fakeAgent(): { agent: Agent; appended: Array<{ type: string }> } {
   } as unknown as Agent
   return { agent, appended }
 }
-
-describe('agentfuse policy resolution', () => {
-  it('denylist always wins', () => {
-    const rules = agentfuse.compileRules({ denyTools: ['danger'], defaultAction: 'allow' })
-    expect(resolvePolicy(request('danger'), rules)).toMatchObject({
-      action: 'block', reasonCode: 'explicit_denylist', policyId: 'agentfuse:denylist',
-    })
-  })
-
-  it('asklist defers after the denylist and before the allowlist', () => {
-    const askRules = agentfuse.compileRules({ askTools: ['danger'], allowTools: ['safe', 'danger'] })
-    expect(resolvePolicy(request('danger'), askRules)).toMatchObject({
-      action: 'ask', reasonCode: 'requires_approval', policyId: 'agentfuse:asklist',
-    })
-
-    // A deny beats the same name's ask entry.
-    const denyBeatsAsk = agentfuse.compileRules({ denyTools: ['danger'], askTools: ['danger'] })
-    expect(resolvePolicy(request('danger'), denyBeatsAsk)).toMatchObject({
-      action: 'block', reasonCode: 'explicit_denylist',
-    })
-
-    // An asklisted name is deferred even when the allowlist would have blocked it.
-    const askBeatsAllowlist = agentfuse.compileRules({ askTools: ['other'], allowTools: ['safe'] })
-    expect(resolvePolicy(request('other'), askBeatsAllowlist)).toMatchObject({ action: 'ask' })
-    expect(resolvePolicy(request('third'), askBeatsAllowlist)).toMatchObject({
-      action: 'block', reasonCode: 'not_allowlisted',
-    })
-  })
-
-  it('configured allowlist blocks a non-listed name and allows a listed one', () => {
-    const rules = agentfuse.compileRules({ allowTools: ['safe'] })
-    expect(resolvePolicy(request('other'), rules)).toMatchObject({
-      action: 'block', reasonCode: 'not_allowlisted', policyId: 'agentfuse:allowlist',
-    })
-    expect(resolvePolicy(request('safe'), rules)).toMatchObject({
-      action: 'allow', reasonCode: 'allowed', policyId: 'agentfuse:allowlist',
-    })
-  })
-
-  it('fails closed on the default when nothing matches', () => {
-    expect(resolvePolicy(request('anything'), agentfuse.compileRules({}))).toMatchObject({
-      action: 'block', reasonCode: 'policy_denied', policyId: 'agentfuse:default:block',
-    })
-    expect(resolvePolicy(request('anything'), agentfuse.compileRules({ defaultAction: 'allow' }))).toMatchObject({
-      action: 'allow', reasonCode: 'allowed', policyId: 'agentfuse:default:allow',
-    })
-  })
-})
-
-describe('agentfuse evidence', () => {
-  it('argumentsHash is order-independent', () => {
-    expect(argumentsHash({ b: 1, a: [2, 3] })).toBe(argumentsHash({ a: [2, 3], b: 1 }))
-    expect(argumentsHash({ a: 1 })).not.toBe(argumentsHash({ a: 2 }))
-  })
-
-  it('a block decision carries non-execution evidence; an allow does not', () => {
-    const blockResolved = resolvePolicy(request('danger'), agentfuse.compileRules({ denyTools: ['danger'] }))
-    if (blockResolved.action === 'ask') throw new Error('unreachable: a deny resolves to block')
-    const block = buildDecision(request('danger'), blockResolved)
-    expect(block.action).toBe('block')
-    expect(block.evidence.schemaVersion).toBe(EVIDENCE_SCHEMA_VERSION)
-    expect(block.evidence.nonExecution).toMatchObject({ status: 'not_executed', execution: 'not_started' })
-
-    const allowResolved = resolvePolicy(request('safe'), agentfuse.compileRules({ defaultAction: 'allow' }))
-    if (allowResolved.action === 'ask') throw new Error('unreachable: the default resolves to allow')
-    const allow = buildDecision(request('safe'), allowResolved)
-    expect(allow.action).toBe('allow')
-    expect(allow.evidence.nonExecution).toBeUndefined()
-  })
-})
 
 describe('agentfuse pre-execute gate', () => {
   it('denies a denylisted tool before dispatch', async () => {
@@ -231,5 +155,11 @@ describe('dsh-agentfuse real-load-path guard', () => {
     expect('default' in agentfuse).toBe(false)
     expect(agentfuse.name).toBe('agentfuse')
     expect(typeof agentfuse.apply).toBe('function')
+  })
+
+  it('re-exports the core vocabulary for DSH consumers', () => {
+    expect(typeof agentfuse.compileRules).toBe('function')
+    expect(typeof agentfuse.evaluate).toBe('function')
+    expect(typeof agentfuse.argumentsHash).toBe('function')
   })
 })

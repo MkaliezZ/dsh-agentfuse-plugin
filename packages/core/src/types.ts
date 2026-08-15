@@ -1,9 +1,9 @@
 /**
- * AgentFuse public decision and evidence vocabulary, plus the durable
- * `agentfuse/decision` session event.
+ * AgentFuse public decision and evidence vocabulary — framework-agnostic.
  *
- * This is a TypeScript port of the DHMS AgentFuse `agentfuse-evidence-schema-v0.1`
- * (Python `dhms_agentfuse`), preserving two of its core contracts:
+ * This is a TypeScript port of the DHMS AgentFuse
+ * `agentfuse-evidence-schema-v0.1` (Python `dhms_agentfuse`), preserving two
+ * of its core contracts:
  *
  * - decision and execution are separate lifecycle facts — a blocked call is a
  *   completed policy decision with non-execution evidence, not a failed
@@ -11,7 +11,10 @@
  * - evidence never carries raw arguments, paths, or credentials — only a
  *   canonical `argumentsHash` and policy facts.
  *
- * @module @deepseek-ai/dsh-agentfuse/types
+ * This module imports nothing outside this package; framework adapters (e.g.
+ * the DeepSeek Harness plugin) depend on it.
+ *
+ * @module @agentfuse/core/types
  */
 
 /** Canonical evidence schema version emitted by every {@link AgentFuseDecision}. */
@@ -104,9 +107,10 @@ export interface AgentFuseDecision {
 }
 
 /**
- * Durable log-only evidence payload for one decision. Deliberately small and
- * JSON-safe: tool identity, the canonical action, reason/policy facts, and the
- * arguments hash — never raw arguments.
+ * Durable log-only evidence payload for one decision — the shape a framework
+ * adapter records on its own audit log. Deliberately small and JSON-safe: tool
+ * identity, the canonical action, reason/policy facts, and the arguments hash —
+ * never raw arguments.
  */
 export interface AgentFuseDecisionEventData {
   toolCallId: string
@@ -116,19 +120,4 @@ export interface AgentFuseDecisionEventData {
   policyId: string
   argumentsHash: string
   evidenceSchemaVersion: string
-}
-
-declare module '@deepseek-ai/dsh-session/types' {
-  interface SessionEventMap {
-    /**
-     * One AgentFuse pre-dispatch policy decision. Log-only (never derived
-     * history; the model-facing deny already reaches the model through the
-     * `tool/result` error the pipeline materializes). Its loss cannot change
-     * how the rest of the log reconstructs, so writers may skip it as
-     * ignorable; it exists so an audit trail can reconstruct the FULL policy
-     * decision — reason code, policy id, and canonical arguments hash — rather
-     * than only the flattened error message.
-     */
-    'agentfuse/decision': AgentFuseDecisionEventData
-  }
 }

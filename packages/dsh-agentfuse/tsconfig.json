@@ -16,6 +16,9 @@
       "path": "../../../vendor/schemastery"
     },
     {
+      "path": "../../../vendor/agentfuse-core"
+    },
+    {
       "path": "../../core/tools"
     },
     {

@@ -1,17 +1,11 @@
-# dsh-agentfuse
+# AgentFuse
 
-> **Status:** ALPHA · 12 tests passing · seeking the first real (non-self) deployment
+> **Deterministic, fail-closed tool-call authorization for AI agents — with evidence.**
+> **Status:** ALPHA · seeking the first real (non-self) deployment
 
-AgentFuse is a fail-closed **pre-dispatch policy boundary** for AI agent tools,
-ported from the DHMS AgentFuse Python project to a DeepSeek Harness (DSH) guard
-plugin.
-
-Every model-directed tool call flows through the DSH `tools/pre-execute`
-waterfall. AgentFuse evaluates it against a deterministic denylist → asklist →
-allowlist → default policy, fails closed on `block`, defers asklisted tools to
-the DSH human-approval chain, and appends a durable `agentfuse/decision`
-session event for blocked calls carrying the canonical evidence — reason
-code, policy id, and a canonical arguments hash, **never raw arguments**.
+AgentFuse is a pre-dispatch policy boundary for side-effect-capable AI agent
+tools, ported from the DHMS AgentFuse Python project
+([`MkaliezZ/dhms-engine`](https://github.com/MkaliezZ/dhms-engine)).
 
 ```text
 AGENTFUSE_IS_A_DANGER_CLASSIFIER=false
@@ -21,105 +15,52 @@ AGENTFUSE_DEFERRALS=ask
 AGENTFUSE_FAILS_CLOSED=true
 ```
 
-## What it is / is not
+A blocked call is a **completed policy decision with non-execution evidence** —
+never a failed tool execution. Evidence carries reason codes, policy ids, and a
+canonical arguments hash, never raw arguments or credentials.
 
-AgentFuse owns only the deterministic `allow | block` decision and its
-evidence. It is **not** a process sandbox, malware detector, intrinsic danger
-classifier, or universal interceptor. Risk classification, approval, dispatch,
-and physical execution remain the integrating runtime's responsibility — the
-same boundary the Python `dhms_agentfuse` documents.
+## Packages
 
-## Config
+| Package | What it is | Depends on |
+|---|---|---|
+| [`packages/core`](packages/core) · `@agentfuse/core` | Framework-agnostic engine: decision/evidence vocabulary, deterministic policy resolution, canonical hashing | nothing |
+| [`packages/dsh-agentfuse`](packages/dsh-agentfuse) · `@deepseek-ai/dsh-agentfuse` | DeepSeek Harness guard plugin: `tools/pre-execute` gate, DSH config schema, durable `agentfuse/decision` session event, approval-chain deferral (`askTools`) | `@agentfuse/core`, DSH |
+
+The core is the product; the DSH package is one adapter. More adapters
+(LangGraph, Claude Code hooks, MCP) are on the [roadmap](ROADMAP.md).
+
+## Quickstart (DeepSeek Harness)
 
 ```yaml
 # cordis.yml (or a cordis.patch.yml insert)
 - id: agentfuse
   name: '@deepseek-ai/dsh-agentfuse'
   config:
-    defaultAction: block      # 'allow' | 'block' — fall-through for unlisted names
-    denyTools: []             # always wins
+    defaultAction: block      # fail-closed fall-through
+    denyTools: []             # deterministic block, always wins
     askTools: []              # defer to the DSH human-approval chain
     allowTools: []            # non-empty = only these names may run
-    logDecisions: false       # durable evidence; needs in-repo catalog (see note below)
+    logDecisions: false       # durable evidence; needs in-repo catalog
 ```
 
-Policy resolution order (fixed, deterministic):
+See the [adapter README](packages/dsh-agentfuse/README.md) for the policy
+order, the approval integration, and the install paths (bundle + PR).
 
-1. `denyTools` match → `block` (`explicit_denylist`)
-2. `askTools` match → `ask` (`requires_approval`)
-3. configured `allowTools` without the name → `block` (`not_allowlisted`)
-4. configured `allowTools` containing the name → `allow` (`allowed`)
-5. `defaultAction` → `allow`/`block` (`allowed` / `policy_denied`)
+## Repository layout
 
-## Approval integration
-
-An `askTools` match returns `{ kind: 'ask' }` from the `tools/pre-execute`
-waterfall. The DSH tool registry routes it through the approval service
-(`@deepseek-ai/dsh-user-approval`), which prompts the composed answerers (the
-Web GUI approval card, CLI answerers, …) and records the `approval/asked` +
-`approval/decided` audit pair on the session log.
-
-Outcomes:
-
-- `allowed-once` — the tool runs;
-- `rejected` / `cancelled` / `unavailable` — the tool is denied, and the model
-  sees a distinct reason for each (a human "no" reads differently from a
-  missing approval channel);
-- no approval service composed, no answerer, or a `never` approval policy —
-  every ask **fails closed** to deny.
-
-AgentFuse emits **no** `agentfuse/decision` evidence for asks: a deferral is
-not a final decision, and the approval layer already records the complete
-ask/decide chain, so the two audits never overlap.
-
-## Install
-
-### As a bundle
-
-The package declares itself as a DSH bundle (`dsh.bundle.patch` →
-`cordis.patch.yml`). Reference it from a profile bundle list or apply the patch
-row directly; see the DSH [profiles and bundles
-architecture](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md#profiles-and-bundles).
-
-### Into the DSH repo (PR path)
-
-This package is structured to drop into the DeepSeek Harness monorepo at
-`packages/guard/agentfuse/` unchanged. That is the supported build path: DSH
-packages are not published to npm, so the `workspace:^` peer dependencies
-resolve only inside the monorepo.
-
-> **Durable event catalog:** the `agentfuse/decision` session event is a new
-> `SessionEventMap` member. DSH's persistence read path refuses unknown event
-> types unless they are registered in the generated
-> `KNOWN_SESSION_EVENT_TYPES` catalog. After the package lands in-repo, run
-> `pnpm run gen-persistence-catalog` so the event is recognized. Until then the
-> gate still blocks correctly; only the durable decision event is not
-> reconstructable on reload. For this reason `logDecisions` defaults to
-> `false` — leave it off for standalone installs and enable it only after the
-> package lands in-repo and the catalog is regenerated.
-
-## API
-
-- `evaluate(request, rules)` — pure, side-effect-free policy resolution (the
-  TypeScript analogue of the Python `RuntimeGuard.evaluate()`, extended with
-  the DSH-native third outcome): returns `allow`/`block` (final — build its
-  evidence with `buildDecision`) or `ask` (deferred to the approval chain),
-  dispatches nothing.
-- `buildDecision(request, resolved)` — assemble the canonical
-  `AgentFuseDecision` with `agentfuse-evidence-schema-v0.1` evidence for a
-  final `allow`/`block` resolution.
-- `compileRules(config)` — validate/compile a `Config` into engine rules.
-- `argumentsHash(value)` — canonical, order-independent SHA-256 of arguments.
-- `apply(ctx, config)` — the Cordis plugin entry: installs the pre-execute gate.
+```text
+packages/
+  core/            @agentfuse/core — zero runtime dependencies
+  dsh-agentfuse/   @deepseek-ai/dsh-agentfuse — the DSH adapter (bundle)
+ROADMAP.md         phases, version line, stop-lines
+```
 
 ## Relationship to DHMS
 
-This is a faithful port of the DHMS AgentFuse decision engine and
-`agentfuse-evidence-schema-v0.1` from
-[`MkaliezZ/dhms-engine`](https://github.com/MkaliezZ/dhms-engine). Decision and
-execution remain separate lifecycle facts; a blocked call is recorded as a
-completed policy decision with non-execution evidence, not as a failed tool
-execution.
+AgentFuse is the runtime-execution-control line of DHMS (Digital Hyperthymesia
+Memory Systems). The engine is a faithful TypeScript port of
+`dhms_agentfuse`'s decision engine and `agentfuse-evidence-schema-v0.1`;
+decision and execution remain separate lifecycle facts.
 
 ## License
 
