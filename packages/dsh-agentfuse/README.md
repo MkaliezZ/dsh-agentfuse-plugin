@@ -79,6 +79,16 @@ AgentFuse emits **no** `agentfuse/decision` evidence for asks: a deferral is
 not a final decision, and the approval layer already records the complete
 ask/decide chain, so the two audits never overlap.
 
+## Regression locking with dsh-policy-test
+
+The production policy is also a CI artifact. The
+[`dsh-policy-test`](https://github.com/MkaliezZ/dsh-policy-test) evaluator
+adapter compiles the **same** `PolicyConfig` through `@agentfuse/core` and runs
+a fixture table against it — so configuration drift (a dropped allowlist, a
+flipped default) turns red in CI instead of silently becoming an unexpected
+`ALLOW` in production. See the
+[joint example](https://github.com/MkaliezZ/dsh-policy-test/tree/main/examples/agentfuse).
+
 ## Install
 
 ### As a bundle
