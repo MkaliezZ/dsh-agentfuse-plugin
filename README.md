@@ -1,5 +1,7 @@
 # dsh-agentfuse
 
+> **Status:** ALPHA · 12 tests passing · seeking the first real (non-self) deployment
+
 AgentFuse is a fail-closed **pre-dispatch policy boundary** for AI agent tools,
 ported from the DHMS AgentFuse Python project to a DeepSeek Harness (DSH) guard
 plugin.
