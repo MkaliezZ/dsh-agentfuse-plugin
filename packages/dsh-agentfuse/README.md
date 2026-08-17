@@ -1,6 +1,6 @@
 # dsh-agentfuse
 
-> **Status:** ALPHA · 12 tests passing · seeking the first real (non-self) deployment
+> **Status:** ALPHA · bounded conformance proof · no production-readiness claim
 
 AgentFuse is a fail-closed **pre-dispatch policy boundary** for AI agent tools,
 ported from the DHMS AgentFuse Python project to a DeepSeek Harness (DSH) guard
@@ -12,8 +12,8 @@ resolution, hashing, and evidence assembly all live in the core. This package
 owns only the DSH config schema, the `tools/pre-execute` gate, and the durable
 `agentfuse/decision` session event.
 
-Every model-directed tool call flows through the DSH `tools/pre-execute`
-waterfall. AgentFuse evaluates it against a deterministic denylist → asklist →
+In the tested integrated DSH path, model-directed tool calls reach the
+`tools/pre-execute` waterfall. AgentFuse evaluates them against a deterministic denylist → asklist →
 allowlist → default policy, fails closed on `block`, defers asklisted tools to
 the DSH human-approval chain, and appends a durable `agentfuse/decision`
 session event for blocked calls carrying the canonical evidence — reason
@@ -29,8 +29,10 @@ AGENTFUSE_FAILS_CLOSED=true
 
 ## What it is / is not
 
-AgentFuse owns only the deterministic `allow | block` decision, the approval
-deferral, and their evidence. It is **not** a process sandbox, malware
+AgentFuse owns only its deterministic `allow | block` decision and bounded
+decision evidence. The adapter can return DSH's host-owned `ask` deferral; it
+does not own approval or make `ask` a third canonical AgentFuse decision. It is
+**not** a process sandbox, malware
 detector, intrinsic danger classifier, or universal interceptor. Risk
 classification, approval, dispatch, and physical execution remain the
 integrating runtime's responsibility — the same boundary the Python
@@ -88,6 +90,35 @@ a fixture table against it — so configuration drift (a dropped allowlist, a
 flipped default) turns red in CI instead of silently becoming an unexpected
 `ALLOW` in production. See the
 [joint example](https://github.com/MkaliezZ/dsh-policy-test/tree/main/examples/agentfuse).
+
+## Cross-adapter conformance
+
+The v3.6.2 conformance test consumes an exact snapshot of the canonical,
+provider-neutral fixture vocabulary from `MkaliezZ/dhms-engine`. Provenance is
+recorded in
+[`conformance/cross_adapter_v3_6_2/provenance.json`](conformance/cross_adapter_v3_6_2/provenance.json),
+including source commit `3ed2ccd0aadfcc61ad48ac5a49a54632f7911a91` and fixture SHA-256
+`1f66c9e20ff28ebeeae128b8aaf38a5b251582496a753acded9530b819056d7b`.
+
+The tests overlay this package and `@agentfuse/core` onto DeepSeek Harness
+commit `99f6f02fecdb7dff40c3fbc9470f5907c29f74ca` (`0.1.0-rc.7`) and exercise
+the real `Context`, `SystemPrompt`, `ToolRuntime`, `tools/pre-execute`,
+`tools/execute`, and `tools/result` path. The deterministic result is 11 PASS,
+0 FAIL, and 3 N/A across 14 canonical cases.
+
+The N/A cases are bounded:
+
+- policy callback exception and invalid callback output: the current DSH core
+  exposes static configuration, not a custom policy callback surface;
+- sync/async parity: DSH `ToolRuntime` exposes one asynchronous execution path,
+  not separate sync and async APIs.
+
+DSH `ask` remains a host approval deferral and does not appear in the canonical
+`allow | block` fixtures. Host `isError` materialization for a denied call also
+does not rewrite the earlier policy fact: it remains block/not-executed, not an
+executed handler failure. These tests prove only the pinned integrated path;
+they do not prove universal DSH interception, global exactly-once execution,
+or official DeepSeek certification.
 
 ## Install
 

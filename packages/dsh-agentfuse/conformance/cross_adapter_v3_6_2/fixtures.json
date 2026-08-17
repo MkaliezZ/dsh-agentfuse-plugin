@@ -1,0 +1,284 @@
+{
+  "fixture_version": "agentfuse-cross-adapter-conformance-v3.6.2",
+  "arguments_profile": "synthetic_sensitive_v1",
+  "expected_arguments_digest": "sha256:69a0f9156485cc309318aad37699b745f9d6440cb6b45475e17c8ade2b526ff5",
+  "canonical_policy_actions": [
+    "allow",
+    "block"
+  ],
+  "cases": [
+    {
+      "case_id": "01_STATIC_ALLOW",
+      "tool_call_id": "conformance-static-allow-001",
+      "tool_name": "safe_read",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": null,
+        "deny_tools": [],
+        "default_action": "allow"
+      },
+      "host_scenario": "decision_only",
+      "expected_policy": {
+        "decision": "allow",
+        "reason": "allowed",
+        "reason_class": "allow",
+        "dispatch_allowed": true
+      }
+    },
+    {
+      "case_id": "02_STATIC_BLOCK",
+      "tool_call_id": "conformance-static-block-001",
+      "tool_name": "dangerous_write",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": null,
+        "deny_tools": [
+          "dangerous_write"
+        ],
+        "default_action": "allow"
+      },
+      "host_scenario": "blocked",
+      "expected_policy": {
+        "decision": "block",
+        "reason": "explicit_denylist",
+        "reason_class": "policy_denial",
+        "dispatch_allowed": false
+      }
+    },
+    {
+      "case_id": "03_EXPLICIT_DENY_WINS",
+      "tool_call_id": "conformance-explicit-deny-001",
+      "tool_name": "dual_listed_tool",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": [
+          "dual_listed_tool"
+        ],
+        "deny_tools": [
+          "dual_listed_tool"
+        ],
+        "default_action": "allow"
+      },
+      "host_scenario": "blocked",
+      "expected_policy": {
+        "decision": "block",
+        "reason": "explicit_denylist",
+        "reason_class": "policy_denial",
+        "dispatch_allowed": false
+      }
+    },
+    {
+      "case_id": "04_NOT_ALLOWLISTED",
+      "tool_call_id": "conformance-not-allowlisted-001",
+      "tool_name": "unlisted_write",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": [
+          "safe_read"
+        ],
+        "deny_tools": [],
+        "default_action": "allow"
+      },
+      "host_scenario": "blocked",
+      "expected_policy": {
+        "decision": "block",
+        "reason": "not_allowlisted",
+        "reason_class": "policy_denial",
+        "dispatch_allowed": false
+      }
+    },
+    {
+      "case_id": "05_POLICY_EXCEPTION_FAIL_CLOSED",
+      "tool_call_id": "conformance-policy-exception-001",
+      "tool_name": "policy_fault_tool",
+      "policy_mode": "exception",
+      "policy": {
+        "allow_tools": null,
+        "deny_tools": [],
+        "default_action": "allow"
+      },
+      "host_scenario": "blocked",
+      "expected_policy": {
+        "decision": "block",
+        "reason": "policy_exception",
+        "reason_class": "policy_failure",
+        "dispatch_allowed": false
+      }
+    },
+    {
+      "case_id": "06_INVALID_POLICY_DECISION_FAIL_CLOSED",
+      "tool_call_id": "conformance-invalid-policy-001",
+      "tool_name": "invalid_policy_tool",
+      "policy_mode": "invalid",
+      "policy": {
+        "allow_tools": null,
+        "deny_tools": [],
+        "default_action": "allow"
+      },
+      "host_scenario": "blocked",
+      "expected_policy": {
+        "decision": "block",
+        "reason": "invalid_policy_decision",
+        "reason_class": "policy_failure",
+        "dispatch_allowed": false
+      }
+    },
+    {
+      "case_id": "07_ALLOW_THEN_EXECUTE",
+      "tool_call_id": "conformance-allow-execute-001",
+      "tool_name": "safe_execute",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": [
+          "safe_execute"
+        ],
+        "deny_tools": [],
+        "default_action": "block"
+      },
+      "host_scenario": "execute",
+      "expected_policy": {
+        "decision": "allow",
+        "reason": "allowed",
+        "reason_class": "allow",
+        "dispatch_allowed": true
+      }
+    },
+    {
+      "case_id": "08_ALLOW_THEN_HANDLER_FAILURE",
+      "tool_call_id": "conformance-allow-failure-001",
+      "tool_name": "failing_execute",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": [
+          "failing_execute"
+        ],
+        "deny_tools": [],
+        "default_action": "block"
+      },
+      "host_scenario": "handler_failure",
+      "expected_policy": {
+        "decision": "allow",
+        "reason": "allowed",
+        "reason_class": "allow",
+        "dispatch_allowed": true
+      }
+    },
+    {
+      "case_id": "09_ALLOW_THEN_INTERRUPT",
+      "tool_call_id": "conformance-allow-interrupt-001",
+      "tool_name": "interrupting_execute",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": [
+          "interrupting_execute"
+        ],
+        "deny_tools": [],
+        "default_action": "block"
+      },
+      "host_scenario": "interrupt",
+      "expected_policy": {
+        "decision": "allow",
+        "reason": "allowed",
+        "reason_class": "allow",
+        "dispatch_allowed": true
+      }
+    },
+    {
+      "case_id": "10_SAFE_RECEIPT",
+      "tool_call_id": "conformance-safe-receipt-001",
+      "tool_name": "protected_write",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": null,
+        "deny_tools": [
+          "protected_write"
+        ],
+        "default_action": "allow"
+      },
+      "host_scenario": "safe_receipt",
+      "expected_policy": {
+        "decision": "block",
+        "reason": "explicit_denylist",
+        "reason_class": "policy_denial",
+        "dispatch_allowed": false
+      }
+    },
+    {
+      "case_id": "11_DETERMINISTIC_REEVALUATION",
+      "tool_call_id": "conformance-reevaluation-001",
+      "tool_name": "deterministic_read",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": null,
+        "deny_tools": [],
+        "default_action": "allow"
+      },
+      "host_scenario": "reevaluate",
+      "expected_policy": {
+        "decision": "allow",
+        "reason": "allowed",
+        "reason_class": "allow",
+        "dispatch_allowed": true
+      }
+    },
+    {
+      "case_id": "12_TOOL_CALL_IDENTITY",
+      "tool_call_id": "conformance-identity-001",
+      "secondary_tool_call_id": "conformance-identity-002",
+      "tool_name": "identity_read",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": null,
+        "deny_tools": [],
+        "default_action": "allow"
+      },
+      "host_scenario": "identity",
+      "expected_policy": {
+        "decision": "allow",
+        "reason": "allowed",
+        "reason_class": "allow",
+        "dispatch_allowed": true
+      }
+    },
+    {
+      "case_id": "13_SYNC_ASYNC_PARITY",
+      "tool_call_id": "conformance-parity-001",
+      "tool_name": "parity_read",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": [
+          "parity_read"
+        ],
+        "deny_tools": [],
+        "default_action": "block"
+      },
+      "host_scenario": "sync_async_parity",
+      "expected_policy": {
+        "decision": "allow",
+        "reason": "allowed",
+        "reason_class": "allow",
+        "dispatch_allowed": true
+      }
+    },
+    {
+      "case_id": "14_ONE_TERMINAL_SETTLEMENT",
+      "tool_call_id": "conformance-terminal-001",
+      "tool_name": "terminal_write",
+      "policy_mode": "static",
+      "policy": {
+        "allow_tools": null,
+        "deny_tools": [
+          "terminal_write"
+        ],
+        "default_action": "allow"
+      },
+      "host_scenario": "terminal_settlement",
+      "expected_policy": {
+        "decision": "block",
+        "reason": "explicit_denylist",
+        "reason_class": "policy_denial",
+        "dispatch_allowed": false
+      }
+    }
+  ]
+}

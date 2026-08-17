@@ -1,7 +1,7 @@
 {
   "name": "@deepseek-ai/dsh-agentfuse",
   "description": "AgentFuse fail-closed pre-dispatch tool gate for DeepSeek Harness: deterministic allow/block/ask policy with durable decision evidence",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publishConfig": {
     "access": "public"
   },

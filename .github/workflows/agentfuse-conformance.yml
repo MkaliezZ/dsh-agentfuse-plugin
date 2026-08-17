@@ -1,0 +1,79 @@
+name: AgentFuse conformance
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-dsh-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out AgentFuse plugin
+        uses: actions/checkout@v4
+        with:
+          path: plugin
+
+      - name: Check out pinned DeepSeek Harness
+        uses: actions/checkout@v4
+        with:
+          repository: deepseek-ai/deepseek-harness
+          ref: 99f6f02fecdb7dff40c3fbc9470f5907c29f74ca
+          path: dsh
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: dsh/pnpm-lock.yaml
+
+      - name: Install pinned DSH dependencies
+        working-directory: dsh
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Overlay AgentFuse packages
+        run: |
+          cp -R plugin/packages/core dsh/vendor/agentfuse-core
+          cp -R plugin/packages/dsh-agentfuse dsh/packages/guard/agentfuse
+
+      - name: Link overlay workspace dependencies
+        working-directory: dsh
+        run: |
+          mkdir -p packages/guard/agentfuse/node_modules/@agentfuse
+          ln -s ../../../../../vendor/agentfuse-core packages/guard/agentfuse/node_modules/@agentfuse/core
+          mkdir -p packages/guard/agentfuse/node_modules/@deepseek-ai
+          ln -s ../../../../../vendor/cordis packages/guard/agentfuse/node_modules/@deepseek-ai/cordis
+          ln -s ../../../../../vendor/schemastery packages/guard/agentfuse/node_modules/@deepseek-ai/schemastery
+          ln -s ../../../../core/agent packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-agent
+          ln -s ../../../../runtime-diagnostics/invariants packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-invariants
+          ln -s ../../../../llm/llm packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-llm
+          ln -s ../../../../core/session packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-session
+          ln -s ../../../../core/system-prompt packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-system-prompt
+          ln -s ../../../../core/tools packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-tools
+          ln -s ../../../../interaction/user-approval packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-user-approval
+
+      - name: Build AgentFuse packages
+        working-directory: dsh
+        run: node node_modules/typescript/bin/tsc -b vendor/agentfuse-core packages/guard/agentfuse
+
+      - name: Run core, adapter, and conformance tests
+        working-directory: dsh
+        run: |
+          node node_modules/vitest/vitest.mjs run \
+            --root vendor/agentfuse-core \
+            --config vitest.config.ts
+          node node_modules/vitest/vitest.mjs run \
+            packages/guard/agentfuse/tests/agentfuse.spec.ts \
+            packages/guard/agentfuse/tests/conformance.spec.ts
+
+      - name: Render conformance matrix
+        working-directory: dsh
+        run: node --import tsx packages/guard/agentfuse/tests/run-conformance.ts
