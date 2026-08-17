@@ -9,6 +9,7 @@ import {
   loadProvenance,
   renderDshMatrix,
   runDshConformance,
+  safeFailureReason,
 } from './conformance.ts'
 
 
@@ -86,5 +87,12 @@ describe('AgentFuse v3.6.2 cross-adapter conformance', () => {
     expect(rendered).not.toContain('agentfuse-v3.6.2-synthetic-sentinel')
     expect(rendered).toContain('11_DETERMINISTIC_REEVALUATION')
     expect(rendered).toContain('NOT_APPLICABLE')
+  })
+
+  it('redacts protected input echoed by a failing host path', () => {
+    const reason = safeFailureReason(new Error('echoed agentfuse-v3.6.2-synthetic-sentinel'))
+
+    expect(reason).not.toContain('agentfuse-v3.6.2-synthetic-sentinel')
+    expect(reason).toContain('<redacted-sensitive-value>')
   })
 })

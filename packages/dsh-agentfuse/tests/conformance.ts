@@ -174,8 +174,13 @@ function notApplicable(document: FixtureDocument, testCase: ConformanceCase, rea
   }
 }
 
-function failed(document: FixtureDocument, testCase: ConformanceCase, error: unknown): DshConformanceResult {
+export function safeFailureReason(error: unknown): string {
   const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
+  return message.replaceAll(syntheticSentinel, '<redacted-sensitive-value>')
+}
+
+function failed(document: FixtureDocument, testCase: ConformanceCase, error: unknown): DshConformanceResult {
+  const message = safeFailureReason(error)
   return {
     fixture_version: document.fixture_version,
     adapter_id: DSH_ADAPTER_ID,
@@ -344,6 +349,9 @@ async function runCase(document: FixtureDocument, testCase: ConformanceCase): Pr
       if (observation.decisionEvents[0]?.argumentsHash !== document.expected_arguments_digest) {
         throw new Error('safe decision event digest drift')
       }
+    }
+    if (JSON.stringify({ decisionEvents: observation.decisionEvents, results: observation.results }).includes(syntheticSentinel)) {
+      throw new Error('raw protected argument leaked through a DSH event or host result')
     }
     const serializedSafeOutput = JSON.stringify({
       decision,
