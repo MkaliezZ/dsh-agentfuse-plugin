@@ -1,7 +1,7 @@
 {
   "name": "@agentfuse/core",
   "description": "Framework-agnostic AgentFuse policy engine: deterministic fail-closed tool-call authorization with evidence",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publishConfig": {
     "access": "public"
   },

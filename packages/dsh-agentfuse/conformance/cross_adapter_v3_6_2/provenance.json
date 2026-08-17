@@ -1,0 +1,9 @@
+{
+  "source_repository": "https://github.com/MkaliezZ/dhms-engine",
+  "source_commit": "3ed2ccd0aadfcc61ad48ac5a49a54632f7911a91",
+  "fixture_path": "examples/conformance/cross_adapter_v3_6_2/fixtures.json",
+  "fixture_version": "agentfuse-cross-adapter-conformance-v3.6.2",
+  "fixture_sha256": "1f66c9e20ff28ebeeae128b8aaf38a5b251582496a753acded9530b819056d7b",
+  "tested_dsh_repository": "https://github.com/deepseek-ai/deepseek-harness",
+  "tested_dsh_commit": "99f6f02fecdb7dff40c3fbc9470f5907c29f74ca"
+}

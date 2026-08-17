@@ -17,8 +17,8 @@
  *
  * AgentFuse is not a process sandbox, malware detector, intrinsic danger
  * classifier, or universal interceptor. It owns only the deterministic
- * `allow|block` decision, the approval deferral, and their evidence; dispatch
- * and risk classification remain the integrating runtime's responsibility.
+ * `allow|block` decision and bounded decision evidence. DSH owns approval,
+ * dispatch, execution outcomes, and the host-specific `ask` deferral.
  *
  * @module @deepseek-ai/dsh-agentfuse
  */
@@ -97,8 +97,8 @@ function askReason(toolName: string, reasonCode: string): string {
 }
 
 /**
- * Install the pre-dispatch gate. Every model-directed tool call flows through
- * the `tools/pre-execute` waterfall:
+ * Install the pre-dispatch gate. In the tested integrated DSH path,
+ * model-directed tool calls flow through the `tools/pre-execute` waterfall:
  *
  * - `block` returns `deny` without delegating (short-circuit), so no later
  *   listener can turn the block back into permission, and appends the durable

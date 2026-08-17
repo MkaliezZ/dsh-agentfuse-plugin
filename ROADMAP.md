@@ -1,8 +1,8 @@
 # Roadmap
 
-AgentFuse's north star: make enterprises comfortable running AI agents in
-production — not by filtering bad outputs, but by making every agent action
-**authorizable, provable, and auditable**.
+AgentFuse explores a bounded, deterministic authorization and evidence layer
+for agent tool calls. Current conformance results are local engineering proof,
+not production-readiness, certification, or deployment validation.
 
 ## Principles
 
@@ -17,7 +17,7 @@ production — not by filtering bad outputs, but by making every agent action
 
 | Phase | Horizon | Goal | Exit criterion |
 |---|---|---|---|
-| P0 — DSH plugin | done | Ship the guard plugin | ✅ 3 commits, 12 tests, `dsh-plugin` topic |
+| P0 — DSH plugin | done | Ship the experimental guard plugin | Integrated DSH tests and documented authority boundary |
 | P1 — Ecosystem | 0–3 mo | First real (non-self) deployment | ≥1 deployment by someone else |
 | P2 — Product | 3–9 mo | Multi-framework + policy management | ≥2 deployments + ≥1 paid pilot |
 | P3 — Commercial | 9–18 mo | Managed audit layer → seed | ARR taking shape |
@@ -35,7 +35,7 @@ everything after.
   adapter.
 - [ ] LangGraph adapter demo — prove this is not a DSH-only toy.
 - [ ] One external real deployment — the README can then say "deployed at X".
-- [ ] One compliance blog post — "agent action audit × EU AI Act / SOC 2".
+- [ ] One evidence-boundary engineering note based on external implementation feedback.
 - [ ] Three customer-discovery interviews — finance / healthcare / enterprise
   automation CTOs; validate the pain.
 
@@ -78,6 +78,7 @@ Type II, Series A. Planned in detail only when P2 data exists.
 
 | Version | Content | Phase |
 |---|---|---|
+| v0.1.1 | Cross-adapter conformance fixtures and pinned DSH CI proof | P1 |
 | v0.2 | `agentfuse/policy` custom-policy event (fail-closed) | P1 |
 | v0.3 | Core extraction; the DSH package becomes an adapter | P1 |
 | v0.4 | LangGraph adapter + Claude Code demo | P1/P2 |
@@ -88,7 +89,7 @@ Type II, Series A. Planned in detail only when P2 data exists.
 
 - `logDecisions` defaults to `false` until DSH accepts external PRs or offers
   an out-of-repo session-event registration surface.
-- 0.1.0: no compatibility promise before 1.0.
+- 0.1.x: no compatibility promise before 1.0.
 
 ## Global stop-lines
 

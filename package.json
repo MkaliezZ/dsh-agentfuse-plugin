@@ -1,6 +1,6 @@
 {
   "name": "@agentfuse/monorepo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "AgentFuse: deterministic fail-closed tool-call authorization with evidence — framework-agnostic core + DeepSeek Harness adapter",

@@ -24,10 +24,11 @@ canonical arguments hash, never raw arguments or credentials.
 | Package | What it is | Depends on |
 |---|---|---|
 | [`packages/core`](packages/core) · `@agentfuse/core` | Framework-agnostic engine: decision/evidence vocabulary, deterministic policy resolution, canonical hashing | nothing |
-| [`packages/dsh-agentfuse`](packages/dsh-agentfuse) · `@deepseek-ai/dsh-agentfuse` | DeepSeek Harness guard plugin: `tools/pre-execute` gate, DSH config schema, durable `agentfuse/decision` session event, approval-chain deferral (`askTools`) | `@agentfuse/core`, DSH |
+| [`packages/dsh-agentfuse`](packages/dsh-agentfuse) · `@deepseek-ai/dsh-agentfuse` | DeepSeek Harness guard plugin: tested `tools/pre-execute` gate, DSH config schema, durable `agentfuse/decision` session event, and host-owned approval deferral (`askTools`) | `@agentfuse/core`, DSH |
 
-The core is the product; the DSH package is one adapter. More adapters
-(LangGraph, Claude Code hooks, MCP) are on the [roadmap](ROADMAP.md).
+The core defines the bounded policy vocabulary; the DSH package is one
+experimental adapter. Potential future integrations are tracked in the
+[roadmap](ROADMAP.md), but are not implemented here.
 
 ## Quickstart (DeepSeek Harness)
 
@@ -45,6 +46,17 @@ The core is the product; the DSH package is one adapter. More adapters
 
 See the [adapter README](packages/dsh-agentfuse/README.md) for the policy
 order, the approval integration, and the install paths (bundle + PR).
+
+## Cross-adapter conformance
+
+The DSH adapter consumes the provider-neutral DHMS AgentFuse v3.6.2 fixture
+snapshot with source commit and SHA-256 provenance. Against DeepSeek Harness
+commit `99f6f02fecdb7dff40c3fbc9470f5907c29f74ca`, the real integrated
+`tools/pre-execute` path records 11 PASS and 3 explicitly justified N/A cases;
+it does not claim coverage of unwrapped or future DSH paths.
+
+See the [adapter conformance notes](packages/dsh-agentfuse/README.md#cross-adapter-conformance)
+and the checked-in [fixture provenance](packages/dsh-agentfuse/conformance/cross_adapter_v3_6_2/provenance.json).
 
 ## Repository layout
 
