@@ -46,8 +46,8 @@ jobs:
 
       - name: Link AgentFuse core into the adapter
         run: |
-          mkdir -p dsh/packages/guard/agentfuse/node_modules/@agentfuse
-          ln -s ../../../../../vendor/agentfuse-core dsh/packages/guard/agentfuse/node_modules/@agentfuse/core
+          mkdir -p dsh/packages/guard/agentfuse/node_modules/@dhms-agentfuse
+          ln -s ../../../../../vendor/agentfuse-core dsh/packages/guard/agentfuse/node_modules/@dhms-agentfuse/core
 
       - name: Install published DeepSeek packages for runtime resolution
         run: |
