@@ -7,7 +7,7 @@
 
 - insert:
     - id: agentfuse
-      name: '@agentfuse/dsh-agentfuse'
+      name: '@dhms-agentfuse/dsh-agentfuse'
       config:
         defaultAction: block
         denyTools: []
