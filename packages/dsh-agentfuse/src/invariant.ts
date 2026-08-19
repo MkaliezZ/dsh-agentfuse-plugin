@@ -1,13 +1,13 @@
 /**
- * Package-owned invariant companion for `@agentfuse/dsh-agentfuse`.
- * @module @agentfuse/dsh-agentfuse/invariant
+ * Package-owned invariant companion for `@dhms-agentfuse/dsh-agentfuse`.
+ * @module @dhms-agentfuse/dsh-agentfuse/invariant
  */
 
 /* jscpd:ignore-start */
 import type { Context } from '@deepseek-ai/cordis'
 import type { InvariantInstaller } from '@deepseek-ai/dsh-invariants'
 
-const PACKAGE_NAME = '@agentfuse/dsh-agentfuse'
+const PACKAGE_NAME = '@dhms-agentfuse/dsh-agentfuse'
 
 /** Cordis companion plugin name. */
 export const name = 'agentfuse-invariant'
