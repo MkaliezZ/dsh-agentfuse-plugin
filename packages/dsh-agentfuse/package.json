@@ -62,7 +62,7 @@
                             "vitest":  "^4.1.0"
                         },
     "scripts":  {
-                    "build":  "tsc -p tsconfig.json",
+                    "build":  "tsc -p tsconfig.build.json",
                     "test":  "vitest run --config vitest.config.ts",
                     "prepublishOnly":  "npm run build"
                 }
