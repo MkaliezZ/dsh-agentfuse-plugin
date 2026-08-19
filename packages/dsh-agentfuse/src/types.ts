@@ -3,7 +3,7 @@
  * session log vocabulary. The payload shape itself is framework-agnostic and
  * owned by `@agentfuse/core`; this module only registers it on DSH's
  * `SessionEventMap`.
- * @module @deepseek-ai/dsh-agentfuse/types
+ * @module @agentfuse/dsh-agentfuse/types
  */
 
 import type { AgentFuseDecisionEventData } from '@agentfuse/core'
