@@ -24,7 +24,7 @@ import {
   type PolicyConfig,
   type ResolvedPolicy,
   type ToolCallRequest,
-} from '@agentfuse/core'
+} from '@dhms-agentfuse/core'
 import * as agentfuse from '../src/index.ts'
 
 
