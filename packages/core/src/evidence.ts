@@ -3,7 +3,7 @@
  * policy hashing, and the {@link EvidenceRecord} assembly that keeps decision
  * and execution as separate lifecycle facts.
  *
- * @module @agentfuse/core/evidence
+ * @module @dhms-agentfuse/core/evidence
  */
 
 import { createHash } from 'node:crypto'
