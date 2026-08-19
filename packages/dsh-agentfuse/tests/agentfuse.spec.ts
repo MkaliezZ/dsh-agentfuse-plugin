@@ -1,9 +1,9 @@
 /**
- * DSH-adapter coverage for @agentfuse/dsh-agentfuse. The gate tests drive
+ * DSH-adapter coverage for @dhms-agentfuse/dsh-agentfuse. The gate tests drive
  * the real `tools/pre-execute` waterfall through `ctx.tools.execute`; the ask
  * tests compose the real approval service with a scripted answerer to prove
  * the full allow-once/rejected loop. Pure policy/evidence behavior is covered
- * by `@agentfuse/core`'s own suite — imported here only where the adapter
+ * by `@dhms-agentfuse/core`'s own suite — imported here only where the adapter
  * touches it.
  */
 
@@ -15,7 +15,7 @@ import type { SessionEvent } from '@deepseek-ai/dsh-session'
 import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
 import ToolRuntime, { defineContentToolFixture } from '@deepseek-ai/dsh-tools'
 import ApprovalService, { type ApprovalOutcome } from '@deepseek-ai/dsh-user-approval'
-import * as agentfuse from '@agentfuse/dsh-agentfuse'
+import * as agentfuse from '@dhms-agentfuse/dsh-agentfuse'
 
 const testToolSignal = new AbortController().signal
 
