@@ -53,7 +53,8 @@ jobs:
         run: |
           mkdir -p /tmp/dsh-published && cd /tmp/dsh-published && npm init -y >/dev/null
           npm install --no-save --no-package-lock \
-            @deepseek-ai/cosmokit@latest`n            @deepseek-ai/cordis@^4.0.1 \
+            @deepseek-ai/cosmokit@latest \
+            @deepseek-ai/cordis@^4.0.1 \
             @deepseek-ai/schemastery@^3.18.1 \
             @deepseek-ai/dsh-agent@^0.1.0-rc.6 \
             @deepseek-ai/dsh-invariants@^0.1.0-rc.6 \
