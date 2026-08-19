@@ -1,5 +1,5 @@
 {
-    "name":  "@agentfuse/dsh-agentfuse",
+    "name":  "@dhms-agentfuse/dsh-agentfuse",
     "description":  "AgentFuse fail-closed pre-dispatch tool gate for DeepSeek Harness: deterministic allow/block/ask policy with durable decision evidence",
     "version":  "0.2.0",
     "publishConfig":  {
@@ -39,7 +39,7 @@
                            }
             },
     "dependencies":  {
-                         "@agentfuse/core":  "^0.2.0",
+                         "@dhms-agentfuse/core":  "^0.2.0",
                          "@deepseek-ai/schemastery":  "^3.18.1"
                      },
     "peerDependencies":  {
