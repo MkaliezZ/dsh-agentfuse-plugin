@@ -1,14 +1,14 @@
 /**
  * The DSH-specific durable audit event: AgentFuse decisions merge into the
  * session log vocabulary. The payload shape itself is framework-agnostic and
- * owned by `@agentfuse/core`; this module only registers it on DSH's
+ * owned by `@dhms-agentfuse/core`; this module only registers it on DSH's
  * `SessionEventMap`.
- * @module @agentfuse/dsh-agentfuse/types
+ * @module @dhms-agentfuse/dsh-agentfuse/types
  */
 
-import type { AgentFuseDecisionEventData } from '@agentfuse/core'
+import type { AgentFuseDecisionEventData } from '@dhms-agentfuse/core'
 
-export type { AgentFuseDecisionEventData } from '@agentfuse/core'
+export type { AgentFuseDecisionEventData } from '@dhms-agentfuse/core'
 
 declare module '@deepseek-ai/dsh-session/types' {
   interface SessionEventMap {
