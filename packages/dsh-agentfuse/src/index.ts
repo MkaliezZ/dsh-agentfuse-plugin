@@ -2,7 +2,7 @@
  * AgentFuse: an experimental in-process pre-dispatch policy boundary for AI
  * agent tools, ported to DeepSeek Harness as a guard plugin.
  *
- * This package is a THIN ADAPTER over `@agentfuse/core`: it owns the DSH
+ * This package is a THIN ADAPTER over `@dhms-agentfuse/core`: it owns the DSH
  * config schema, the `tools/pre-execute` gate, and the durable
  * `agentfuse/decision` session event. The decision vocabulary, deterministic
  * policy resolution, hashing, and evidence assembly all live in the core.
@@ -20,7 +20,7 @@
  * `allow|block` decision and bounded decision evidence. DSH owns approval,
  * dispatch, execution outcomes, and the host-specific `ask` deferral.
  *
- * @module @agentfuse/dsh-agentfuse
+ * @module @dhms-agentfuse/dsh-agentfuse
  */
 
 import type { Context } from '@deepseek-ai/cordis'
@@ -35,11 +35,11 @@ import {
   type AgentFuseDecisionEventData,
   type PolicyConfig,
   type ToolCallRequest,
-} from '@agentfuse/core'
+} from '@dhms-agentfuse/core'
 
-// Re-export the complete core vocabulary so `@agentfuse/dsh-agentfuse`
+// Re-export the complete core vocabulary so `@dhms-agentfuse/dsh-agentfuse`
 // stays the single import surface for DSH consumers.
-export * from '@agentfuse/core'
+export * from '@dhms-agentfuse/core'
 export type { AgentFuseDecisionEventData } from './types.ts'
 
 /** Cordis plugin name used by loader diagnostics. */
