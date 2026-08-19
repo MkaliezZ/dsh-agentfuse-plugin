@@ -62,9 +62,7 @@ jobs:
 
       - name: Build AgentFuse packages
         working-directory: dsh
-        run: |
-          node node_modules/typescript/bin/tsc -p vendor/agentfuse-core/tsconfig.json
-          node node_modules/typescript/bin/tsc -p packages/guard/agentfuse/tsconfig.json
+        run: node node_modules/typescript/bin/tsc -b vendor/agentfuse-core packages/guard/agentfuse
 
       - name: Run core, adapter, and conformance tests
         working-directory: dsh
