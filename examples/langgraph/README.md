@@ -1,11 +1,11 @@
 # LangGraph example
 
-This example shows how `@agentfuse/core` gates tool dispatch in a LangGraph
+This example shows how `@dhms-agentfuse/core` gates tool dispatch in a LangGraph
 (JavaScript) agent **without any DeepSeek Harness code** — the same engine the
 DSH adapter uses, wired to a different framework.
 
 > This directory is an illustrative example, not a published adapter: it is
-> self-contained (imports only `@agentfuse/core`) and demonstrates the wiring
+> self-contained (imports only `@dhms-agentfuse/core`) and demonstrates the wiring
 > pattern. A production LangGraph adapter would hide the plumbing below behind
 > a guarded `ToolNode` wrapper, exactly like the DSH adapter hides it behind a
 > `tools/pre-execute` listener.
