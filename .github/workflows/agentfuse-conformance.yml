@@ -44,21 +44,29 @@ jobs:
           cp -R plugin/packages/core dsh/vendor/agentfuse-core
           cp -R plugin/packages/dsh-agentfuse dsh/packages/guard/agentfuse
 
-      - name: Link overlay workspace dependencies
-        working-directory: dsh
+      - name: Link AgentFuse core into the adapter
         run: |
-          mkdir -p packages/guard/agentfuse/node_modules/@agentfuse
-          ln -s ../../../../../vendor/agentfuse-core packages/guard/agentfuse/node_modules/@agentfuse/core
-          mkdir -p packages/guard/agentfuse/node_modules/@deepseek-ai
-          ln -s ../../../../../vendor/cordis packages/guard/agentfuse/node_modules/@deepseek-ai/cordis
-          ln -s ../../../../../vendor/schemastery packages/guard/agentfuse/node_modules/@deepseek-ai/schemastery
-          ln -s ../../../../core/agent packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-agent
-          ln -s ../../../../runtime-diagnostics/invariants packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-invariants
-          ln -s ../../../../llm/llm packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-llm
-          ln -s ../../../../core/session packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-session
-          ln -s ../../../../core/system-prompt packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-system-prompt
-          ln -s ../../../../core/tools packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-tools
-          ln -s ../../../../interaction/user-approval packages/guard/agentfuse/node_modules/@deepseek-ai/dsh-user-approval
+          mkdir -p dsh/packages/guard/agentfuse/node_modules/@agentfuse
+          ln -s ../../../../../vendor/agentfuse-core dsh/packages/guard/agentfuse/node_modules/@agentfuse/core
+
+      - name: Install published DeepSeek packages for runtime resolution
+        run: |
+          mkdir -p /tmp/dsh-published && cd /tmp/dsh-published && npm init -y >/dev/null
+          npm install --no-save --no-package-lock \
+            @deepseek-ai/cordis@^4.0.1 \
+            @deepseek-ai/schemastery@^3.18.1 \
+            @deepseek-ai/dsh-agent@^0.1.0-rc.6 \
+            @deepseek-ai/dsh-invariants@^0.1.0-rc.6 \
+            @deepseek-ai/dsh-llm@^0.1.0-rc.6 \
+            @deepseek-ai/dsh-session@^0.1.0-rc.6 \
+            @deepseek-ai/dsh-system-prompt@^0.1.0-rc.6 \
+            @deepseek-ai/dsh-tools@^0.1.0-rc.6 \
+            @deepseek-ai/dsh-user-approval@^0.1.0-rc.6
+          cd "$GITHUB_WORKSPACE/dsh"
+          for p in cordis schemastery dsh-agent dsh-invariants dsh-llm dsh-session dsh-system-prompt dsh-tools dsh-user-approval; do
+            rm -rf "node_modules/@deepseek-ai/$p"
+            cp -R "/tmp/dsh-published/node_modules/@deepseek-ai/$p" "node_modules/@deepseek-ai/$p"
+          done
 
       - name: Build AgentFuse packages
         working-directory: dsh
