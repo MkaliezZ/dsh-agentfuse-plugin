@@ -9,7 +9,7 @@
  * approval chain, an unmatched allowlist always blocks, and only an explicitly
  * configured default action falls through.
  *
- * @module @agentfuse/core/policy
+ * @module @dhms-agentfuse/core/policy
  */
 
 import type { AgentFuseAction, ToolCallRequest } from './types.ts'
