@@ -43,7 +43,7 @@ integrating runtime's responsibility — the same boundary the Python
 ```yaml
 # cordis.yml (or a cordis.patch.yml insert)
 - id: agentfuse
-  name: '@deepseek-ai/dsh-agentfuse'
+  name: '@agentfuse/dsh-agentfuse'
   config:
     defaultAction: block      # 'allow' | 'block' — fall-through for unlisted names
     denyTools: []             # always wins
