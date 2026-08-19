@@ -1,5 +1,5 @@
 /**
- * Pure coverage for @agentfuse/core: policy precedence, default fail-closed
+ * Pure coverage for @dhms-agentfuse/core: policy precedence, default fail-closed
  * behavior, canonical argument hashing, and decision/evidence assembly.
  * No framework is mounted — these tests run anywhere vitest runs.
  */
