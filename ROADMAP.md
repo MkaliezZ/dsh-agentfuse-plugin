@@ -30,7 +30,7 @@ not production-readiness, certification, or deployment validation.
 Goal: the first real deployment by someone else. This is the ticket to
 everything after.
 
-- [x] Extract the framework-agnostic core (`@agentfuse/core`) — policy,
+- [x] Extract the framework-agnostic core (`@dhms-agentfuse/core`) — policy,
   evidence, and hashing are already pure; turn the DSH package into a thin
   adapter.
 - [ ] LangGraph adapter demo — prove this is not a DSH-only toy.
