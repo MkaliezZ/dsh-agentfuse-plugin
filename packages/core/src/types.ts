@@ -14,7 +14,7 @@
  * This module imports nothing outside this package; framework adapters (e.g.
  * the DeepSeek Harness plugin) depend on it.
  *
- * @module @agentfuse/core/types
+ * @module @dhms-agentfuse/core/types
  */
 
 /** Canonical evidence schema version emitted by every {@link AgentFuseDecision}. */
