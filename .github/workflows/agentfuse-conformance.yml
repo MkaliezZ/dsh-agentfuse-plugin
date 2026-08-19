@@ -53,7 +53,7 @@ jobs:
         run: |
           mkdir -p /tmp/dsh-published && cd /tmp/dsh-published && npm init -y >/dev/null
           npm install --no-save --no-package-lock \
-            @deepseek-ai/cordis@^4.0.1 \
+            @deepseek-ai/cosmokit@latest`n            @deepseek-ai/cordis@^4.0.1 \
             @deepseek-ai/schemastery@^3.18.1 \
             @deepseek-ai/dsh-agent@^0.1.0-rc.6 \
             @deepseek-ai/dsh-invariants@^0.1.0-rc.6 \
@@ -63,7 +63,7 @@ jobs:
             @deepseek-ai/dsh-tools@^0.1.0-rc.6 \
             @deepseek-ai/dsh-user-approval@^0.1.0-rc.6
           cd "$GITHUB_WORKSPACE/dsh"
-          for p in cordis schemastery dsh-agent dsh-invariants dsh-llm dsh-session dsh-system-prompt dsh-tools dsh-user-approval; do
+          for p in cosmokit cordis schemastery dsh-agent dsh-invariants dsh-llm dsh-session dsh-system-prompt dsh-tools dsh-user-approval; do
             rm -rf "node_modules/@deepseek-ai/$p"
             cp -R "/tmp/dsh-published/node_modules/@deepseek-ai/$p" "node_modules/@deepseek-ai/$p"
           done
