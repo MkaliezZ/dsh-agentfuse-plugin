@@ -7,7 +7,7 @@ ported from the DHMS AgentFuse Python project to a DeepSeek Harness (DSH) guard
 plugin.
 
 This package is a thin DSH adapter over the framework-agnostic engine
-[`@agentfuse/core`](../core): the decision vocabulary, deterministic policy
+[`@dhms-agentfuse/core`](../core): the decision vocabulary, deterministic policy
 resolution, hashing, and evidence assembly all live in the core. This package
 owns only the DSH config schema, the `tools/pre-execute` gate, and the durable
 `agentfuse/decision` session event.
@@ -43,7 +43,7 @@ integrating runtime's responsibility — the same boundary the Python
 ```yaml
 # cordis.yml (or a cordis.patch.yml insert)
 - id: agentfuse
-  name: '@agentfuse/dsh-agentfuse'
+  name: '@dhms-agentfuse/dsh-agentfuse'
   config:
     defaultAction: block      # 'allow' | 'block' — fall-through for unlisted names
     denyTools: []             # always wins
@@ -85,7 +85,7 @@ ask/decide chain, so the two audits never overlap.
 
 The production policy is also a CI artifact. The
 [`dsh-policy-test`](https://github.com/MkaliezZ/dsh-policy-test) evaluator
-adapter compiles the **same** `PolicyConfig` through `@agentfuse/core` and runs
+adapter compiles the **same** `PolicyConfig` through `@dhms-agentfuse/core` and runs
 a fixture table against it — so configuration drift (a dropped allowlist, a
 flipped default) turns red in CI instead of silently becoming an unexpected
 `ALLOW` in production. See the
@@ -100,7 +100,7 @@ recorded in
 including source commit `3ed2ccd0aadfcc61ad48ac5a49a54632f7911a91` and fixture SHA-256
 `1f66c9e20ff28ebeeae128b8aaf38a5b251582496a753acded9530b819056d7b`.
 
-The tests overlay this package and `@agentfuse/core` onto DeepSeek Harness
+The tests overlay this package and `@dhms-agentfuse/core` onto DeepSeek Harness
 commit `99f6f02fecdb7dff40c3fbc9470f5907c29f74ca` (`0.1.0-rc.7`) and exercise
 the real `Context`, `SystemPrompt`, `ToolRuntime`, `tools/pre-execute`,
 `tools/execute`, and `tools/result` path. The deterministic result is 11 PASS,
@@ -134,7 +134,7 @@ architecture](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/a
 This package is structured to drop into the DeepSeek Harness monorepo at
 `packages/guard/agentfuse/` unchanged, with the core vendored at
 `vendor/agentfuse-core/` (the `vendor/*` workspace glob links it automatically,
-so the `@agentfuse/core` dependency resolves as-is). That is the supported
+so the `@dhms-agentfuse/core` dependency resolves as-is). That is the supported
 build path: DSH packages are not published to npm, so the `workspace:^`
 dependencies resolve only inside the monorepo.
 
@@ -152,7 +152,7 @@ dependencies resolve only inside the monorepo.
 
 The complete core vocabulary (`evaluate`, `resolvePolicy`, `buildDecision`,
 `compileRules`, `argumentsHash`, `policyHash`, and all decision/evidence types)
-is re-exported from `@agentfuse/core` — see its
+is re-exported from `@dhms-agentfuse/core` — see its
 [README](../core/README.md). This package adds only:
 
 - `apply(ctx, config)` — the Cordis plugin entry: installs the pre-execute gate.
