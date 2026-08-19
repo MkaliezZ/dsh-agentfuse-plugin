@@ -1,5 +1,5 @@
 /**
- * Illustrative LangGraph-style wiring for @agentfuse/core — no DSH imports,
+ * Illustrative LangGraph-style wiring for @dhms-agentfuse/core — no DSH imports,
  * no LangGraph imports. The tool-call shape `{ id, name, args }` and the
  * ToolMessage return are the only framework facts assumed; adapt them to your
  * LangGraph (JavaScript) version's ToolNode/AIMessage APIs.
@@ -16,7 +16,7 @@ import {
   type AgentFuseDecision,
   type PolicyConfig,
   type ToolCallRequest,
-} from '@agentfuse/core'
+} from '@dhms-agentfuse/core'
 
 /** The policy for one deployment. */
 const config: PolicyConfig = {
