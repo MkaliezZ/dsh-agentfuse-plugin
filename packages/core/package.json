@@ -1,5 +1,5 @@
 {
-  "name": "@agentfuse/core",
+  "name": "@dhms-agentfuse/core",
   "description": "Framework-agnostic AgentFuse policy engine: deterministic fail-closed tool-call authorization with evidence",
   "version": "0.2.0",
   "publishConfig": {
