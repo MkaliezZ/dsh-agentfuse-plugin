@@ -7,7 +7,7 @@
 
 - insert:
     - id: agentfuse
-      name: '@deepseek-ai/dsh-agentfuse'
+      name: '@agentfuse/dsh-agentfuse'
       config:
         defaultAction: block
         denyTools: []
