@@ -23,8 +23,8 @@ canonical arguments hash, never raw arguments or credentials.
 
 | Package | What it is | Depends on |
 |---|---|---|
-| [`packages/core`](packages/core) · `@agentfuse/core` | Framework-agnostic engine: decision/evidence vocabulary, deterministic policy resolution, canonical hashing | nothing |
-| [`packages/dsh-agentfuse`](packages/dsh-agentfuse) · `@agentfuse/dsh-agentfuse` | DeepSeek Harness guard plugin: tested `tools/pre-execute` gate, DSH config schema, durable `agentfuse/decision` session event, and host-owned approval deferral (`askTools`) | `@agentfuse/core`, DSH |
+| [`packages/core`](packages/core) · `@dhms-agentfuse/core` | Framework-agnostic engine: decision/evidence vocabulary, deterministic policy resolution, canonical hashing | nothing |
+| [`packages/dsh-agentfuse`](packages/dsh-agentfuse) · `@dhms-agentfuse/dsh-agentfuse` | DeepSeek Harness guard plugin: tested `tools/pre-execute` gate, DSH config schema, durable `agentfuse/decision` session event, and host-owned approval deferral (`askTools`) | `@dhms-agentfuse/core`, DSH |
 
 The core defines the bounded policy vocabulary; the DSH package is one
 experimental adapter. Potential future integrations are tracked in the
@@ -35,7 +35,7 @@ experimental adapter. Potential future integrations are tracked in the
 ```yaml
 # cordis.yml (or a cordis.patch.yml insert)
 - id: agentfuse
-  name: '@agentfuse/dsh-agentfuse'
+  name: '@dhms-agentfuse/dsh-agentfuse'
   config:
     defaultAction: block      # fail-closed fall-through
     denyTools: []             # deterministic block, always wins
@@ -62,8 +62,8 @@ and the checked-in [fixture provenance](packages/dsh-agentfuse/conformance/cross
 
 ```text
 packages/
-  core/            @agentfuse/core — zero runtime dependencies
-  dsh-agentfuse/   @agentfuse/dsh-agentfuse — the DSH adapter (bundle)
+  core/            @dhms-agentfuse/core — zero runtime dependencies
+  dsh-agentfuse/   @dhms-agentfuse/dsh-agentfuse — the DSH adapter (bundle)
 ROADMAP.md         phases, version line, stop-lines
 ```
 
