@@ -20,7 +20,7 @@
  * `allow|block` decision and bounded decision evidence. DSH owns approval,
  * dispatch, execution outcomes, and the host-specific `ask` deferral.
  *
- * @module @deepseek-ai/dsh-agentfuse
+ * @module @agentfuse/dsh-agentfuse
  */
 
 import type { Context } from '@deepseek-ai/cordis'
@@ -37,7 +37,7 @@ import {
   type ToolCallRequest,
 } from '@agentfuse/core'
 
-// Re-export the complete core vocabulary so `@deepseek-ai/dsh-agentfuse`
+// Re-export the complete core vocabulary so `@agentfuse/dsh-agentfuse`
 // stays the single import surface for DSH consumers.
 export * from '@agentfuse/core'
 export type { AgentFuseDecisionEventData } from './types.ts'
