@@ -1,4 +1,4 @@
-# @agentfuse/core
+# @dhms-agentfuse/core
 
 Framework-agnostic AgentFuse policy engine: deterministic, fail-closed
 tool-call authorization with evidence.
